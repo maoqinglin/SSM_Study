@@ -78,4 +78,34 @@ public class AppTest {
             System.out.println(employee);
         }
     }
+
+    /**
+     * 测试增删改
+     * 1、MyBatis允许增删改直接定义以下类型返回值
+     *      Integer、Long、Boolean、void
+     * 2、我们需要手动提交数据
+     *      SqlSession openSession = sqlSessionFactory.openSession() ---> 需要手动提交
+     *      SqlSession openSession = sqlSessionFactory.openSession(true) ---> 自动提交
+     */
+    @Test
+    public void testCURD() throws IOException {
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+        try (SqlSession openSession = sqlSessionFactory.openSession()) {
+            EmployeeMapper employeeMapper = openSession.getMapper(EmployeeMapper.class);
+//            添加
+            Employee employee = new Employee(null,"小盈盈",0,"555@gamil.com");
+            employeeMapper.addEmp(employee);
+            System.out.println("employee: "+employee);
+
+//            修改
+//            Employee employee = new Employee(3, "小云云", 0, "111@gamil.com");
+//            Integer result = employeeMapper.updateEmp(employee);
+//            System.out.println("result: " + result);
+
+//            删除
+//            employeeMapper.deleteEmp(1);
+            // 手动提交
+            openSession.commit();
+        }
+    }
 }
