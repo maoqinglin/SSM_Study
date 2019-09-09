@@ -14,4 +14,9 @@ public interface EmployeeMapperPlus {
     Employee getEmpAndDept(Integer id);
 
     Employee getEmpAndDeptStep(Integer id);
+
+    //    Employee getEmpsByDeptId(Integer deptId); // 也可以
+    List<Employee> getEmpsByDeptId(Integer deptId);
+
+    Employee getEmpDis(Integer id);
 }

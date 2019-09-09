@@ -93,4 +93,55 @@
         select * from tbl_employee where id = #{id}
     </select>
 
+    <!-- 可以使用延迟加载（懒加载），按需加载
+        Employee ===> Dept；
+        我们每次查询Employee对象的时候，都将一起一起查询出来
+        部门信息在我们使用的时候再去查询？
+        可以在分步查询的基础上加两个配置：
+    -->
+    <!-- ====================================================association==============================================-->
+
+    <!--场景二：查询部门的时候将部门对应的所有员工信息也查询出来-->
+
+
+    <!-- List<Employee> getEmpsByDeptId(Integer deptId); -->
+    <select id="getEmpsByDeptId" resultType="com.ireadygo.mybatis.bean.Employee">
+        select * from tbl_employee where d_id = #{deptId}
+    </select>
+
+
+    <!-- <discriminator javaType="">
+        鉴别器：MyBatis可以使用 discriminator 判断某列的值，然后根据某列的值去改变封装行为，封装Employee
+            如果查出的是女生：就把部门信息查询出来，否则不查询
+            如果是男生，把last_name这一列的值赋给email；
+     -->
+    <resultMap id="MyEmpDis" type="com.ireadygo.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="last_name" property="lastName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+        <!--
+            column：判断指定的列名
+            javaType：列值对应的java类型
+        -->
+        <discriminator javaType="Integer" column="gender">
+            <!-- 如果查出的是女生：就把部门信息查询出来，否则不查询 必须指定类型 -->
+            <!-- 此处resultType 必须返回Employee -->
+            <case value="0" resultType="com.ireadygo.mybatis.bean.Employee">
+                <association property="dept"
+                             select="com.ireadygo.mybatis.mapper.DepartmentMapper.getDeptById" column="d_id"/>
+            </case>
+            <!-- 如果是男生，把last_name这一列的值赋给email； -->
+            <case value="1" resultType="com.ireadygo.mybatis.bean.Employee">
+                <id column="id" property="id"/>
+                <result column="last_name" property="lastName"/>
+                <result column="last_name" property="email"/>
+                <result column="gender" property="gender"/>
+            </case>
+        </discriminator>
+    </resultMap>
+    <!-- Employee getEmpDis(Integer id); -->
+    <select id="getEmpDis" resultMap="MyEmpDis">
+        select * from tbl_employee where id = #{id}
+    </select>
 </mapper>

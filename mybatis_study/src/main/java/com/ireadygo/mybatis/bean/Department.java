@@ -1,9 +1,20 @@
 package com.ireadygo.mybatis.bean;
 
+import java.util.List;
+
 public class Department {
 
     private Integer id;
     private String departmentName;
+    private List<Employee> emps;
+
+    public List<Employee> getEmps() {
+        return emps;
+    }
+
+    public void setEmps(List<Employee> emps) {
+        this.emps = emps;
+    }
 
     public Integer getId() {
         return id;

@@ -9,4 +9,56 @@
         <!-- 不能使用 * 否则获取dept_name为null -->
         select id, dept_name departmentName from tbl_dept where id = #{id}
     </select>
+
+    <!-- collection嵌套结果集的方式，定义关联的集合类型元素的封装规则-->
+    <!--
+    public class Department {
+        private Integer id;
+        private String departmentName;
+        private List<Employee> emps;
+    -->
+    <!-- did  dept_name   ||  eid  last_name  gender  email  -->
+    <resultMap id="MyDept" type="com.ireadygo.mybatis.bean.Department">
+        <id column="did" property="id"/>
+        <result column="dept_name" property="departmentName"/>
+        <!-- collection定义关联集合类型属性的封装规则
+            ofType：指定集合里面元素的类型
+         -->
+        <collection property="emps" ofType="com.ireadygo.mybatis.bean.Employee">
+            <!-- 定义集合中元素的封装规则-->
+            <id column="eid" property="id"/>
+            <result column="last_name" property="lastName"/>
+            <result column="gender" property="gender"/>
+            <result column="email" property="email"/>
+        </collection>
+    </resultMap>
+    <!-- Department getDeptByIdPlus(Integer id); -->
+    <select id="getDeptByIdPlus" resultMap="MyDept">
+        SELECT d.`id` did, d.`dept_name` dept_name,
+	            e.`id` eid, e.`last_name` last_name, e.`gender` gender, e.`email` email
+        FROM tbl_dept d
+        LEFT JOIN tbl_employee e
+        ON d.`id`= e.`d_id`
+        WHERE d.`id` = #{id};
+    </select>
+
+    <resultMap id="MyDeptByStep" type="com.ireadygo.mybatis.bean.Department">
+        <id column="id" property="id"/>
+        <result column="dept_name" property="departmentName"/>
+        <!-- 将tbl_dept表中 id 列传给 getEmpsByDeptId 的参数deptId-->
+        <collection property="emps"
+                    select="com.ireadygo.mybatis.mapper.EmployeeMapperPlus.getEmpsByDeptId"
+                    column="{deptId=id}"
+                    fetchType="lazy"/>
+    </resultMap>
+    <!-- Department getDeptByIdStep(Integer id); -->
+    <select id="getDeptByIdStep" resultMap="MyDeptByStep">
+        select id, dept_name departmentName from tbl_dept where id = #{id}
+    </select>
+
+    <!-- 扩展：将多列的值传递给 select
+        将多列的值封装成map传递
+        column={key1=column1, key2=column2}
+        fetchType="lazy"：延迟加载
+    -->
 </mapper>

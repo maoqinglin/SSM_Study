@@ -63,8 +63,13 @@ public class AppPlusTest {
             // 为接口自动的创建一个代理对象，代理对象执行增删改查操作
             DepartmentMapper departmentMapper = openSession.getMapper(DepartmentMapper.class);
 
-            Department dept = departmentMapper.getDeptById(1);
-            System.out.println(dept);
+//            Department dept = departmentMapper.getDeptById(1);
+
+//            Department dept = departmentMapper.getDeptByIdPlus(1);
+
+            Department dept = departmentMapper.getDeptByIdStep(1);
+            System.out.println(dept.getEmps());
+//            System.out.println(dept.getEmps());
         }
     }
 
@@ -79,6 +84,22 @@ public class AppPlusTest {
             EmployeeMapperPlus mapperPlus = openSession.getMapper(EmployeeMapperPlus.class);
 
             Employee employee = mapperPlus.getEmpAndDeptStep(3);
+            System.out.println(employee);  // 调用Employee对象的toString方法会触发懒加载，需要配置<setting name="lazyLoadTriggerMethods" value=""/>
+//            System.out.println(employee.getDept());
+        }
+    }
+
+    @Test
+    public void testDiscriminator() throws IOException {
+
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+
+        try (SqlSession openSession = sqlSessionFactory.openSession()) {
+            // 获取接口的实现类对象
+            // 为接口自动的创建一个代理对象，代理对象执行增删改查操作
+            EmployeeMapperPlus mapperPlus = openSession.getMapper(EmployeeMapperPlus.class);
+
+            Employee employee = mapperPlus.getEmpDis(6);
             System.out.println(employee);
             System.out.println(employee.getDept());
         }
