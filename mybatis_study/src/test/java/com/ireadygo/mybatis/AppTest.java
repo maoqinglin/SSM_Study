@@ -14,6 +14,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -84,10 +85,10 @@ public class AppTest {
     /**
      * 测试增删改
      * 1、MyBatis允许增删改直接定义以下类型返回值
-     *      Integer、Long、Boolean、void
+     * Integer、Long、Boolean、void
      * 2、我们需要手动提交数据
-     *      SqlSession openSession = sqlSessionFactory.openSession() ---> 需要手动提交
-     *      SqlSession openSession = sqlSessionFactory.openSession(true) ---> 自动提交
+     * SqlSession openSession = sqlSessionFactory.openSession() ---> 需要手动提交
+     * SqlSession openSession = sqlSessionFactory.openSession(true) ---> 自动提交
      */
     @Test
     public void testCURD() throws IOException {
@@ -95,9 +96,9 @@ public class AppTest {
         try (SqlSession openSession = sqlSessionFactory.openSession()) {
             EmployeeMapper employeeMapper = openSession.getMapper(EmployeeMapper.class);
 //            添加
-            Employee employee = new Employee(null,"小盈盈",0,"555@gamil.com");
+            Employee employee = new Employee(null, "小盈盈", 0, "555@gamil.com");
             employeeMapper.addEmp(employee);
-            System.out.println("employee: "+employee);
+            System.out.println("employee: " + employee);
 
 //            修改
 //            Employee employee = new Employee(3, "小云云", 0, "111@gamil.com");
@@ -125,7 +126,7 @@ public class AppTest {
             // 获取接口的实现类对象
             // 为接口自动的创建一个代理对象，代理对象执行增删改查操作
             EmployeeMapper employeeMapper = openSession.getMapper(EmployeeMapper.class);
-            Employee employee = employeeMapper.getEmpByIdAndLastName(4,"小盈");
+            Employee employee = employeeMapper.getEmpByIdAndLastName(4, "小盈");
             System.out.println(employee);
         }
     }
@@ -145,13 +146,47 @@ public class AppTest {
             // 为接口自动的创建一个代理对象，代理对象执行增删改查操作
             EmployeeMapper employeeMapper = openSession.getMapper(EmployeeMapper.class);
 
-            Map<String,Object> paramMap = new HashMap<>();
-            paramMap.put("id",4);
-            paramMap.put("lastName","小盈");
-            paramMap.put("table","tbl_employee");
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("id", 4);
+            paramMap.put("lastName", "小盈");
+            paramMap.put("table", "tbl_employee");
 
             Employee employee = employeeMapper.getEmpByMap(paramMap);
             System.out.println(employee);
+        }
+    }
+
+    @Test
+    public void testReturnList() throws IOException {
+
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+
+        try (SqlSession openSession = sqlSessionFactory.openSession()) {
+            // 获取接口的实现类对象
+            // 为接口自动的创建一个代理对象，代理对象执行增删改查操作
+            EmployeeMapper employeeMapper = openSession.getMapper(EmployeeMapper.class);
+
+            List<Employee> employeeList = employeeMapper.getEmpsByLastNameLike("%盈%");
+            for (Employee employee : employeeList) {
+                System.out.println(employee);
+            }
+        }
+    }
+
+    @Test
+    public void testReturnMap() throws IOException {
+
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+
+        try (SqlSession openSession = sqlSessionFactory.openSession()) {
+            // 获取接口的实现类对象
+            // 为接口自动的创建一个代理对象，代理对象执行增删改查操作
+            EmployeeMapper employeeMapper = openSession.getMapper(EmployeeMapper.class);
+
+//            Map<String, Object> map = employeeMapper.getEmpByIdReturnMap(3);
+
+            Map<Integer,Employee> map = employeeMapper.getEmpByLastNameLikeReturnMap("%盈%");
+            System.out.println(map);
         }
     }
 }
