@@ -9,6 +9,14 @@
       select * from tbl_employee where id = #{id}
     </select>
 
+    <select id="getEmpByIdAndLastName" resultType="com.ireadygo.mybatis.bean.Employee">
+        select * from tbl_employee where id = ${id} and last_name=#{lastName}
+    </select>
+
+    <select id="getEmpByMap" resultType="com.ireadygo.mybatis.bean.Employee">
+        select * from ${table} where id = ${id} and last_name=#{lastName}
+    </select>
+
     <!-- parameterType 可以省略
     获取自增主键的值：
         mysql 支持自增主键，自增主键值的获取，MyBatis也是利用 statement.getGeneratedKeys();

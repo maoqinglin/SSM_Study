@@ -13,6 +13,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 1、接口编程
@@ -106,6 +108,50 @@ public class AppTest {
 //            employeeMapper.deleteEmp(1);
             // 手动提交
             openSession.commit();
+        }
+    }
+
+    @Test
+    public void testMulParams() throws IOException {
+        /**
+         * 1、根据xml配置文件（全局配置文件）创建一个 SqlSessionFactory 对象
+         *  有数据源及一些运行环境信息
+         * 2、sql 映射文件，配置了每一个sql，以及sql的封装规则
+         * 3、将sql映射文件注册在全局配置文件中
+         * */
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+
+        try (SqlSession openSession = sqlSessionFactory.openSession()) {
+            // 获取接口的实现类对象
+            // 为接口自动的创建一个代理对象，代理对象执行增删改查操作
+            EmployeeMapper employeeMapper = openSession.getMapper(EmployeeMapper.class);
+            Employee employee = employeeMapper.getEmpByIdAndLastName(4,"小盈");
+            System.out.println(employee);
+        }
+    }
+
+    @Test
+    public void testMapParams() throws IOException {
+        /**
+         * 1、根据xml配置文件（全局配置文件）创建一个 SqlSessionFactory 对象
+         *  有数据源及一些运行环境信息
+         * 2、sql 映射文件，配置了每一个sql，以及sql的封装规则
+         * 3、将sql映射文件注册在全局配置文件中
+         * */
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+
+        try (SqlSession openSession = sqlSessionFactory.openSession()) {
+            // 获取接口的实现类对象
+            // 为接口自动的创建一个代理对象，代理对象执行增删改查操作
+            EmployeeMapper employeeMapper = openSession.getMapper(EmployeeMapper.class);
+
+            Map<String,Object> paramMap = new HashMap<>();
+            paramMap.put("id",4);
+            paramMap.put("lastName","小盈");
+            paramMap.put("table","tbl_employee");
+
+            Employee employee = employeeMapper.getEmpByMap(paramMap);
+            System.out.println(employee);
         }
     }
 }

@@ -13,6 +13,8 @@
     <!--2 settings 包含很多重要的配置项-->
     <settings>
         <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <setting name="jdbcTypeForNull" value="NULL"/>
     </settings>
 
     <!-- 3、typeAliases：别名处理器，可以为我们的Java类型起别名,别名不区分大小写-->
