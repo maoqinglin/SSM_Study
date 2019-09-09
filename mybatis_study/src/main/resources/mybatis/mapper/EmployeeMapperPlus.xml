@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ireadygo.mybatis.mapper.EmployeeMapperPlus">
+
+    <!-- 自定义某个JavaBean的封装规则
+        type：自定义规则的JavaBean类型
+        id：唯一id，方便引用
+    -->
+    <resultMap id="MyEmp" type="com.ireadygo.mybatis.bean.Employee">
+        <!-- 指定主键列的封装规则
+            column：指定列名
+            property：指定column对应的JavaBean属性
+        -->
+        <id column="id" property="id"/>
+        <result column="last_name" property="lastName"/>
+        <!-- 其它不指定的列会自动封装，如果写resultMap推荐把所有的映射规则都写上-->
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+    </resultMap>
+
+    <!-- resultMap：自定义结果映射规则 -->
+    <!-- Employee getEmpById(Integer id); -->
+    <select id="getEmpById" resultMap="MyEmp">
+        select * from tbl_employee where id = #{id}
+    </select>
+
+    <!--
+    场景一：
+        查询Employee对象的同时查询员工对应的部门
+        Employee === Department
+        每个员工都有与之对应的部门
+    -->
+    <!-- 方法1：联合查询：级联属性封装结果集-->
+    <resultMap id="MyDifEmp" type="com.ireadygo.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="last_name" property="lastName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+        <!-- dept相关列映射，使用了别名 -->
+        <result column="did" property="dept.id"/>
+        <result column="dept_name" property="dept.departmentName"/>
+    </resultMap>
+
+    <!-- 方法2：使用association定义关联的单个对象的封装规则 -->
+    <resultMap id="MyDifEmp2" type="com.ireadygo.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="last_name" property="lastName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+        <!-- association 指定联合的JavaBean对象
+            property="dept"：指定哪个属性是联合对象
+            javaType：指定联合属性的Java类型（不能省略）
+        -->
+        <association property="dept" javaType="com.ireadygo.mybatis.bean.Department">
+            <id column="did" property="id"/>
+            <result column="dept_name" property="departmentName"/>
+        </association>
+    </resultMap>
+
+    <!-- Employee getEmpAndDept(Integer id); -->
+    <select id="getEmpAndDept" resultMap="MyDifEmp2">
+        SELECT e.`id` id, e.`last_name` last_name, e.`gender` gender, e.`email` email,e.`d_id` d_id,
+	          d.`id` did, d.`dept_name` dept_name
+        FROM tbl_employee e, tbl_dept d
+        WHERE e.`d_id` = d.`id` AND e.`id`= #{id};
+    </select>
+
+
+    <!--使用 association 进行分步查询
+        1、先按照员工id查询员工信息
+        2、根据查询出的员工信息中的 d_id 值去部门表查出部门信息
+        3、部门设置到员工中；
+    -->
+    <!-- Columns: id, last_name, gender, email, d_id -->
+    <resultMap id="MyEmpStep" type="com.ireadygo.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="last_name" property="lastName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+        <!-- association定义关联对象的封装规则
+            select：表明当前属性调用select指定的方法查出的结果
+            did：指定将哪一列的值传给这个方法
+
+            流程：使用select指定的方法（传入column指定列的参数的值）查出的对象，并封装给property属性
+         -->
+        <association property="dept"
+                     select="com.ireadygo.mybatis.mapper.DepartmentMapper.getDeptById" column="d_id"/>
+    </resultMap>
+    <!-- Employee getEmpAndDeptStep(Integer id); -->
+    <select id="getEmpAndDeptStep" resultMap="MyEmpStep">
+        select * from tbl_employee where id = #{id}
+    </select>
+
+</mapper>

@@ -90,6 +90,9 @@
 
         <!-- 批量注册，使用xml映射文件会报错-->
         <!--<package name="com.ireadygo.mybatis.mapper"/>-->
+
+        <mapper resource="mybatis/mapper/EmployeeMapperPlus.xml"/>
+        <mapper resource="mybatis/mapper/DepartmentMapper.xml"/>
     </mappers>
 
 </configuration>
