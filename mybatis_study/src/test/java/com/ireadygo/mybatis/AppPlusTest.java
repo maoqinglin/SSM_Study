@@ -2,10 +2,7 @@ package com.ireadygo.mybatis;
 
 import com.ireadygo.mybatis.bean.Department;
 import com.ireadygo.mybatis.bean.Employee;
-import com.ireadygo.mybatis.mapper.DepartmentMapper;
-import com.ireadygo.mybatis.mapper.EmployeeMapper;
-import com.ireadygo.mybatis.mapper.EmployeeMapperAnnotation;
-import com.ireadygo.mybatis.mapper.EmployeeMapperPlus;
+import com.ireadygo.mybatis.mapper.*;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -14,6 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,4 +102,53 @@ public class AppPlusTest {
             System.out.println(employee.getDept());
         }
     }
+
+    @Test
+    public void testCondition() throws IOException {
+
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+
+        try (SqlSession openSession = sqlSessionFactory.openSession()) {
+            EmployeeMapperDynamicSQL dynamicSQL = openSession.getMapper(EmployeeMapperDynamicSQL.class);
+            // 测试 if
+//            Employee employee = new Employee(null,"小林",null,null);
+//            List<Employee> employeeList= dynamicSQL.getEmpByConditionIf(employee);
+
+            // 测试 choose
+            Employee employee = new Employee(null, null, null, null);
+            List<Employee> employeeList = dynamicSQL.getEmpByConditionChoose(employee);
+            System.out.println(employeeList);
+        }
+    }
+
+    @Test
+    public void testConditionSet() throws IOException {
+
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+
+        try (SqlSession openSession = sqlSessionFactory.openSession()) {
+            EmployeeMapperDynamicSQL dynamicSQL = openSession.getMapper(EmployeeMapperDynamicSQL.class);
+            // 测试 set 和 if
+            Employee employee = new Employee(6, "xiaolin", null, "aaa@qq.com");
+            dynamicSQL.updateEmp(employee);
+
+            openSession.commit();
+        }
+    }
+
+    @Test
+    public void testConditionForeach() throws IOException {
+
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+
+        try (SqlSession openSession = sqlSessionFactory.openSession()) {
+            EmployeeMapperDynamicSQL dynamicSQL = openSession.getMapper(EmployeeMapperDynamicSQL.class);
+            // 测试 set 和 if
+            List<Employee> employeeList = dynamicSQL.getEmpsByConditionForeach(Arrays.asList(2, 3, 4));
+            for (Employee employee : employeeList) {
+                System.out.println(employee);
+            }
+        }
+    }
+
 }

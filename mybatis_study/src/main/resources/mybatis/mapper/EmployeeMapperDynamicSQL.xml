@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ireadygo.mybatis.mapper.EmployeeMapperDynamicSQL">
+
+    <!--
+        if：判断
+        choose (when, otherwise)：分支
+        trim (where【封装查询条件】, set【封装修改条件】)：字符串截取
+        foreach
+    -->
+    <!-- 查询员工，要求，携带了哪个字段的查询条件就带上这个字段的值-->
+    <!-- Employee getEmpByConditionIf(Employee employee); -->
+    <select id="getEmpByConditionIf" resultType="com.ireadygo.mybatis.bean.Employee">
+        select * from tbl_employee
+        <where>
+            <!-- 遇到特殊字符应该转义 -->
+            <if test="id!=null">id=#{id}</if>
+            <!-- 从参数中取值进行判断，拼接语句注意 column = #{param} -->
+            <if test="lastName!=null and lastName!=''">and last_name like #{lastName}</if>
+            <if test="email!=null and email.trim()!=''">and email = #{email}</if>
+            <if test="gender ==0 or gender==1">and gender=#{gender}</if>
+        </where>
+    </select>
+
+    <!-- List<Employee> getEmpByConditionChoose(Employee employee); -->
+    <select id="getEmpByConditionChoose" resultType="com.ireadygo.mybatis.bean.Employee">
+        select * from tbl_employee
+        <where>
+            <!-- 如果带了id就用id查，如果带了lastName就用lastName查；只会进入其中一个-->
+            <choose>
+                <when test="id!=null">id=#{id}</when>
+                <when test="lastName!=null">last_name=#{lastName}</when>
+                <when test="email!=null">email=#{email}</when>
+
+                <otherwise>gender=0</otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <!-- void updateEmp(Employee employee); -->
+    <update id="updateEmp">
+        <!--update tbl_employee-->
+        <!--<trim prefix="set" suffixOverrides=",">-->
+            <!--<if test="lastName != null">last_name = #{lastName},</if>-->
+            <!--<if test="email != null">email = #{email},</if>-->
+            <!--<if test="gender != null">gender = #{gender}</if>-->
+        <!--</trim>-->
+        <!--&lt;!&ndash; where 条件要写在 set 外面 &ndash;&gt;-->
+        <!--where id=#{id}-->
+
+        update tbl_employee
+        <set>
+            <if test="lastName != null">last_name = #{lastName},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="gender != null">gender = #{gender}</if>
+        </set>
+        <!-- where 条件要写在 set 外面 -->
+        where id=#{id}
+    </update>
+
+    <!-- List<Employee> getEmpsByConditionForeach(List<Integer> ids); -->
+    <!--
+        collection：指定要遍历的集合，参数必须collection活着list
+        list类型的参数会特殊处理封装在map中，map的key就叫list
+        item：将当期遍历的的元素赋值给指定的变量
+        separator：每个元素之间的分隔符
+        open：遍历出所有结果拼接一个开始的字符串
+        close：遍历出所有结果拼接一个结束的字符串
+        index：遍历list时index是索引，item就是当期值
+                遍历map时index是map的key，item就是map的value
+        #{变量名}就能取出变量的值就也就当期遍历出的元素
+    -->
+    <select id="getEmpsByConditionForeach" resultType="com.ireadygo.mybatis.bean.Employee">
+        select * from tbl_employee where id in
+        <foreach collection="collection" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>
