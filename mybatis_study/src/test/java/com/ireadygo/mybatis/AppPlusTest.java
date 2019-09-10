@@ -11,10 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
@@ -115,7 +112,7 @@ public class AppPlusTest {
 //            List<Employee> employeeList= dynamicSQL.getEmpByConditionIf(employee);
 
             // 测试 choose
-            Employee employee = new Employee(null, null, null, null);
+            Employee employee = new Employee(3, null, null, null);
             List<Employee> employeeList = dynamicSQL.getEmpByConditionChoose(employee);
             System.out.println(employeeList);
         }
@@ -151,4 +148,19 @@ public class AppPlusTest {
         }
     }
 
+    @Test
+    public void testBatchSave() throws IOException{
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+
+        try (SqlSession openSession = sqlSessionFactory.openSession()) {
+            EmployeeMapperDynamicSQL dynamicSQLMapper = openSession.getMapper(EmployeeMapperDynamicSQL.class);
+            // 测试 foreach 批量保存
+            List<Employee> employeeList = new ArrayList<>();
+            employeeList.add(new Employee("郭靖",1,"aaa@123",new Department(1)));
+            employeeList.add(new Employee("黄蓉",0,"bbb@123",new Department(2)));
+            dynamicSQLMapper.addEmps(employeeList);
+
+            openSession.commit();
+        }
+    }
 }

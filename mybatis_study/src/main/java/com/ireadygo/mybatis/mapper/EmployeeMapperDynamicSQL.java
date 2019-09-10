@@ -1,6 +1,7 @@
 package com.ireadygo.mybatis.mapper;
 
 import com.ireadygo.mybatis.bean.Employee;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface EmployeeMapperDynamicSQL {
     void updateEmp(Employee employee);
 
     List<Employee> getEmpsByConditionForeach(List<Integer> list1);
+
+    void addEmps(@Param("empList") List<Employee> emps);
 }

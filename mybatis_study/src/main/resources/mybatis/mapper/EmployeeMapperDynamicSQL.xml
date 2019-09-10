@@ -62,7 +62,7 @@
 
     <!-- List<Employee> getEmpsByConditionForeach(List<Integer> ids); -->
     <!--
-        collection：指定要遍历的集合，参数必须collection活着list
+        collection：指定要遍历的集合，如果没有指定@Param（"参数名"）,集合名必须为collection或者list
         list类型的参数会特殊处理封装在map中，map的key就叫list
         item：将当期遍历的的元素赋值给指定的变量
         separator：每个元素之间的分隔符
@@ -79,4 +79,25 @@
         </foreach>
     </select>
 
+    <!-- 批量保存 -->
+    <!--void addEmps(List<Employee> emps); -->
+    <!--MySQL下批量保存：可以foreach遍历，MySQL支持 values(),(),()语法；Oracle不支持这种批量插入-->
+    <insert id="addEmps" >
+        insert into tbl_employee(last_name,email,gender,d_id) values
+        <foreach collection="empList" item="emp" separator=",">
+            (#{emp.lastName},#{emp.email},#{emp.gender},#{emp.dept.id})
+        </foreach>
+    </insert>
+
+    <!-- 这种方式需要数据库连接属性 allowMultiQueries=true
+        insert into table(column1,column2) values(value1,value2);
+        insert into table(column1,column2) values(value3,value4);
+        这种分号分割多个SQL可以用于其它批量（修改、删除）
+    -->
+    <!--<insert id="addEmps" >-->
+        <!--<foreach collection="empList" item="emp" separator=";">-->
+            <!--insert into tbl_employee(last_name,email,gender,d_id)-->
+            <!--values (#{emp.lastName},#{emp.email},#{emp.gender},#{emp.dept.id})-->
+        <!--</foreach>-->
+    <!--</insert>-->
 </mapper>
