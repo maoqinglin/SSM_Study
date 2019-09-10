@@ -83,7 +83,9 @@
     <!--void addEmps(List<Employee> emps); -->
     <!--MySQL下批量保存：可以foreach遍历，MySQL支持 values(),(),()语法；Oracle不支持这种批量插入-->
     <insert id="addEmps" >
-        insert into tbl_employee(last_name,email,gender,d_id) values
+        insert into tbl_employee(
+            <include refid="insertColumn"></include>
+        ) values
         <foreach collection="empList" item="emp" separator=",">
             (#{emp.lastName},#{emp.email},#{emp.gender},#{emp.dept.id})
         </foreach>
@@ -100,4 +102,43 @@
             <!--values (#{emp.lastName},#{emp.email},#{emp.gender},#{emp.dept.id})-->
         <!--</foreach>-->
     <!--</insert>-->
+
+
+    <!-- 两个内置参数
+        不只是方法传递过来的参数可以使用（if）判断，取值
+        MyBatis默认还有两个内置参数：
+            _parameter：代表整个参数
+                单个参数：_parameter就是这个参数
+                多个参数：会被封装为一个map；_parameter代表整个map
+        _databaseId：如果配置了databaseIdProvider标签
+            _databaseId代表当前数据库的别名
+    -->
+    <!-- List<Employee> getEmpsByInnerParameter(Employee employee); -->
+    <select id="getEmpsByInnerParameter" resultType="com.ireadygo.mybatis.bean.Employee">
+
+        <if test="_databaseId == 'mysql'">
+            select * from tbl_employee
+            <if test="_parameter != null">
+                where id = #{_parameter.id}
+            </if>
+        </if>
+        <if test="_databaseId == 'oracle'">
+            select * from tbl_dept
+        </if>
+    </select>
+
+    <!-- 抽取可重用的sql片段，方便后面引用
+        1、经常将要查询的列名，或者插入用的列名抽取出来
+        2、include引用sql片段
+        3、include还可以自定义一些property，SQL标签内部就可以使用自定义的属性，${prop}, 不能使用#{}方式
+    -->
+    <sql id="insertColumn">
+        <if test="_databaseId == 'mysql'">
+            last_name, email, gender, d_id
+        </if>
+        <if test="_databaseId == 'oracle'">
+            last_name, email
+        </if>
+    </sql>
+
 </mapper>

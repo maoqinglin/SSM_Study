@@ -156,11 +156,24 @@ public class AppPlusTest {
             EmployeeMapperDynamicSQL dynamicSQLMapper = openSession.getMapper(EmployeeMapperDynamicSQL.class);
             // 测试 foreach 批量保存
             List<Employee> employeeList = new ArrayList<>();
-            employeeList.add(new Employee("郭靖",1,"aaa@123",new Department(1)));
-            employeeList.add(new Employee("黄蓉",0,"bbb@123",new Department(2)));
+            employeeList.add(new Employee("大郭",1,"aaa@123",new Department(1)));
+            employeeList.add(new Employee("小黄",0,"bbb@123",new Department(2)));
             dynamicSQLMapper.addEmps(employeeList);
 
             openSession.commit();
+        }
+    }
+
+    @Test
+    public void testInnerParameter()throws IOException{
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+
+        try (SqlSession openSession = sqlSessionFactory.openSession()) {
+            EmployeeMapperDynamicSQL dynamicSQLMapper = openSession.getMapper(EmployeeMapperDynamicSQL.class);
+            // 测试 内置参数
+            List<Employee> employeeList = dynamicSQLMapper.getEmpsByInnerParameter(new Employee(3));
+
+            System.out.println(employeeList);
         }
     }
 }
