@@ -20,6 +20,9 @@
         <setting name="lazyLoadingEnabled" value="true"/>
         <setting name="aggressiveLazyLoading" value="false"/>
         <setting name="lazyLoadTriggerMethods" value=""/>
+
+        <!-- 开启全局缓存(二级缓存) -->
+        <setting name="cacheEnabled" value="true"/>
     </settings>
 
     <!-- 3、typeAliases：别名处理器，可以为我们的Java类型起别名,别名不区分大小写-->

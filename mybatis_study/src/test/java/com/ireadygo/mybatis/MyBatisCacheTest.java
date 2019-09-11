@@ -56,6 +56,22 @@ public class MyBatisCacheTest {
      *                          DepartmentMapper ---》 Department
      *              不同的namespace查出的数据会放在自己对应的缓存（map）中
      *
+     *      查出的数据都会默认先放在一级缓存中，只有会话提交或关闭以后，一级缓存中的数据才会转移到二级缓存中
+     *      使用：
+     *          1）、开启全局二级缓存配置：<setting name="cacheEnabled" value="true"/>
+     *          2）、去 mapper.xml 中配置二级缓存
+     *          3）、我们的 POJO 需要实现序列化接口
+     *
+     *      和缓存有关的设置、属性
+     *          1）cacheEnabled = true/false：关闭缓存（二级缓存关闭，一级缓存一直可用）
+     *          2）每个 select 标签都有 userCache=true
+     *                 userCache=false：一级缓存一直使用，关闭二级缓存
+     *          3）【flushCache="false"：增删改执行完后就会清除缓存，一级，二级缓存全都清空】
+     *              每个增删改标签默认：flushCache="true"
+     *              查询标签默认：flushCache="false"，如果改为true，每次查询都清空缓存
+     *          4）SQLSession.cleanCache()：只清除当前session的一级缓存
+     *          5）localCacheScope：本地缓存作用域（一级缓存SESSION）
+     *                  STATEMENT：禁用缓存
      */
     @Test
     public void testFirstLevelCache() throws IOException {
@@ -133,6 +149,27 @@ public class MyBatisCacheTest {
             System.out.println(employee2);
 
             System.out.println(employee1==employee2);
+        }
+    }
+
+    @Test
+    public void testSecondLevelCache() throws IOException {
+
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+
+        try (SqlSession openSession = sqlSessionFactory.openSession(); SqlSession otherSession = sqlSessionFactory.openSession();) {
+            EmployeeMapper mapper = openSession.getMapper(EmployeeMapper.class);
+
+            Employee employee1 = mapper.getEmpById(3);
+            System.out.println(employee1);
+            openSession.close(); // 需要关闭SQLSession，一级缓存中的数据才会给二级缓存
+
+            // 第二次查询是从二级缓存中拿到的数据，并没有发送新的sql
+            EmployeeMapper otherMapper = otherSession.getMapper(EmployeeMapper.class);
+            Employee employee2 = otherMapper.getEmpById(3);
+            System.out.println(employee2);
+
+            System.out.println(employee1==employee2);  // 打印false，说明从二级缓存获取的数据是反序列化的
         }
     }
 }

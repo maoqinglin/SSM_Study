@@ -3,9 +3,20 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ireadygo.mybatis.mapper.EmployeeMapper">
+    <cache eviction="LRU" flushInterval="60000" readOnly="false" size="1024"/>
+    <!--
+        eviction：缓存的回收策略，主要有LRU，FIFO
+        flushInterval：缓存刷新间隔，缓存多长时间清空一次，默认false，设置一个毫秒值
+        readOnly：默认false
+            true：MyBatis认为所有从缓存中获取的数据操作都是只读操作，不会修改数据，为了加快获取速度，直接将缓存数据的引用交给用户。不安全，速度快
+            false：MyBatis觉得获取的数据可能会被修改，MyBatis会利用序列化、反序列化的技术克隆一份数据给用户。安全，速度慢
+        size：
+        type：指定自定义的缓存的全类名，实现Cache接口
+    -->
+
     <!--<select id="getEmpById" resultType="employee">-->
     <!-- resultType 可以使用别名，但建议使用全类名-->
-    <select id="getEmpById" resultType="com.ireadygo.mybatis.bean.Employee" databaseId="mysql">
+    <select id="getEmpById" resultType="com.ireadygo.mybatis.bean.Employee" databaseId="mysql" flushCache="true">
       select * from tbl_employee where id = #{id}
     </select>
 
